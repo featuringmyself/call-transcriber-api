@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# Outputs / media 
+*.mp3
+*.mp4
+*.wav
+transcript.txt
+output.txt
+
+# Local env / secrets
+.env
+
+# macOS
+.DS_Store
