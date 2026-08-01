@@ -3,7 +3,7 @@ from moviepy import AudioFileClip
 
 def mp4_to_mp3(video_path: str, audio_path: str) -> None:
     with AudioFileClip(video_path) as audio:
-        audio.write_audiofile(audio_path, bitrate="320k")
+        audio.write_audiofile(audio_path, bitrate="640k")
 
 
 if __name__ == "__main__":
