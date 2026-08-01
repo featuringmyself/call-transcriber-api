@@ -28,14 +28,6 @@ def assign_speaker(w_start, w_end, diarization_segments):
     return best_speaker
 
 
-
-
-# Transcribe
-result = mlx_whisper.transcribe("sample.mp3", path_or_hf_repo="mlx-community/whisper-large-v3-mlx")
-whisper_segments = result['segments']
-
-
-
 # Diarize
 hf_token = os.environ["HF_TOKEN"]
 pipeline = Pipeline.from_pretrained(
@@ -43,20 +35,23 @@ pipeline = Pipeline.from_pretrained(
     use_auth_token=hf_token,
 )
 
-diarization = pipeline("sample.mp3", num_speakers=2)
-diarization_segments = []
-for turn, _, speaker in diarization.itertracks(yield_label=True):
-    diarization_segments.append({
-        'start': turn.start,
-        'end': turn.end,
-        'speaker': speaker
-    })
 
-# Write
-with open("transcript.txt", "w") as f:
+def make_transcript(audio_path: str, num_speakers: int = 2) -> str:
+    result = mlx_whisper.transcribe(
+        audio_path,
+        path_or_hf_repo="mlx-community/whisper-large-v3-mlx",
+    )
+    whisper_segments = result["segments"]
+    diarization = pipeline(audio_path, num_speakers=num_speakers)
+    diarization_segments = [
+        {"start": turn.start, "end": turn.end, "speaker": speaker}
+        for turn, _, speaker in diarization.itertracks(yield_label=True)
+    ]
+    lines = []
     for segment in whisper_segments:
-        speaker = assign_speaker(segment['start'], segment['end'], diarization_segments)
-        timestamp = format_time(segment['start'])
-        f.write(f"[{timestamp}] {speaker}: {segment['text']}\n")
-
-print("Done. Saved to transcript.txt")
+        speaker = assign_speaker(
+            segment["start"], segment["end"], diarization_segments
+        )
+        timestamp = format_time(segment["start"])
+        lines.append(f"[{timestamp}] {speaker}: {segment['text']}")
+    return "\n".join(lines)
