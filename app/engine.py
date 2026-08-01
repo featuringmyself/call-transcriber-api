@@ -1,10 +1,10 @@
-
+from dotenv import load_dotenv
 import os
 
 import mlx_whisper
 from pyannote.audio import Pipeline
 
-
+load_dotenv()
 
 def format_time(seconds: float) -> str:
     hours, remainder = divmod(int(seconds), 3600)
